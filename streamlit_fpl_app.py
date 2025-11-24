@@ -67,7 +67,6 @@ all_gw_data = []
 
 for idx, row in league_df.iterrows():
     gw_data = fetch_manager_history(row['entry_id'])
-    # merge manager info
     gw_data = gw_data.merge(row.to_frame().T, on='entry_id')
     all_gw_data.append(gw_data)
 
@@ -110,7 +109,7 @@ combined_df = combined_df.sort_values(['overall_rank','total_net_across_months']
 # Streamlit UI
 # -----------------------------
 st.header("Monthly Leaderboards")
-tabs = st.tabs([m[0] for m in month_tables] + ['Combined'])
+tabs = st.tabs([m[0] for m in month_tables] + ['Combined', 'Net Points per GW'])
 
 for i, (month_name, df_month) in enumerate(month_tables):
     with tabs[i]:
@@ -119,10 +118,16 @@ for i, (month_name, df_month) in enumerate(month_tables):
             columns={'month_rank':'Rank','player_name':'Manager','team_name':'Team','month_net':'Net Points',
                      'month_gross':'Gross Points','month_transfer_cost':'Transfer Cost'}))
 
-with tabs[-1]:
+with tabs[-2]:
     st.subheader("Combined Months Leaderboard")
     st.dataframe(combined_df)
     st.download_button("Download Combined CSV", combined_df.to_csv(index=False).encode('utf-8'), file_name='combined_fpl_net.csv')
+
+with tabs[-1]:
+    st.subheader("Net Points per Gameweek")
+    gw_pivot = full_df.pivot_table(index=['player_name','team_name'], columns='gameweek', values='net_points', fill_value=0)
+    st.dataframe(gw_pivot)
+    st.download_button("Download GW Net Points CSV", gw_pivot.reset_index().to_csv(index=False).encode('utf-8'), file_name='net_points_per_gw.csv')
 
 # -----------------------------
 # Cumulative Net Points Chart
