@@ -1,2 +1,4 @@
-aiohttp
-fpl  # the async FPL wrapper by amosbastian :contentReference[oaicite:0]{index=0}
+streamlit
+pandas
+requests
+plotly
